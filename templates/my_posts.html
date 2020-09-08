@@ -90,7 +90,9 @@
           </a>
           <p class="post-meta">Posted by
             <a href="#">{{post.author.first_name}} {{post.author.last_name}}</a>
-            on {{post.date}}</p>
+            on {{post.date}} <a href="/update_post/{{post.id}}">Edit |</a> 
+            <a href="{% url 'delete' post.id %}">Delete</a>
+          </p>
         </div>
 
         <hr>

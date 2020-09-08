@@ -69,39 +69,20 @@ def logout(request):
 def my_posts(request):
     posts = Post.objects.filter(author=request.user)
     # print(posts[0].subtitle)
-    return render(request, 'my_posts.html', {'posts':posts})
+    return render(request, 'my_posts.html', {'posts': posts})
 
 
 def create_post(request):
     if request.method == 'POST':
-        # title=request.POST['title']
-        # subtitle=request.POST['subtitle']
-        # img=request.POST['img']
-        # desc=request.POST['desc']
 
-        # post=Post.objects.create_post(title=title,subtitle=subtitle,img=img,desc=desc)
-        # post.save()
-        # print('hela')
-        # return redirect('/')
         form = CreatePostForm(request.POST, request.FILES)
 
         print("Outside")
 
         if form.is_valid():
-            # print("Inside")
-            # print(request.FILES['img'])
-            # print(request.user.id)
-            # # print("title : " + str(form.cleaned_data['title']))
-            # print("img : " + str(form.cleaned_data['img']))
-            # print("title : " + str(form.cleaned_data['title']))
-            # print("subtitle : " + str(form.cleaned_data['subtitle']))
-            # print("desc : " + str(form.cleaned_data['desc']))
 
             post = Post.objects.create(img=form.cleaned_data['img'], title=form.cleaned_data['title'],
                                        subtitle=form.cleaned_data['subtitle'], desc=form.cleaned_data['desc'], author=request.user)
-            # aa = post.save(commit=False)
-            # aa.author = request.user
-            # aa.save()
 
             post.save()
             return redirect('/')
@@ -118,3 +99,57 @@ def post(request, id):
         return render(request, "post.html", {'blog_data': blog_data})
     else:
         return redirect('login')
+
+
+def update_post(request, id):
+    # if request.user.is_authenticated:
+    #     edit_data = Post.objects.get(id=id)
+    #     form = CreatePostForm(request.POST , instance=edit_data)
+    #     if form.is_valid():
+    #         form.save()
+    #         return redirect('/')
+    # else:
+    #     form=CreatePostForm()
+    # return render(request, 'update_post.html', {'form':form})
+    post = Post.objects.get(id=id)
+
+    print("post.title ====== " + post.title)
+
+    initial_data = {
+        'title': post.title,
+        'subtitle': post.subtitle,
+        'desc': post.desc,
+        'img': post.img
+    }
+
+    if request.method == 'POST':
+
+        form = CreatePostForm(request.POST, request.FILES)
+
+        print("Outside")
+
+        if form.is_valid():
+
+            # post = Post.objects.create(img=form.cleaned_data['img'], title=form.cleaned_data['title'],
+            #                            subtitle=form.cleaned_data['subtitle'], desc=form.cleaned_data['desc'], author=request.user)
+            
+            post.id = id
+            post.title = form.cleaned_data['title']
+            post.subtitle = form.cleaned_data['subtitle']
+            post.desc = form.cleaned_data['desc']
+            post.img = form.cleaned_data['img']
+            post.save()
+
+            return redirect('/')
+
+    else:
+        form = CreatePostForm(initial=initial_data)
+    return render(request, 'update_post.html', {'form': form, 'id': id})
+
+def delete_post(request,id):
+    item=Post.objects.get(id=id)
+    if request.method=='POST':
+        item.delete()
+        return redirect('/')
+    context={'item':item}
+    return render(request,'delete.html',context)
